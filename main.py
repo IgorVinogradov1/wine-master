@@ -1,15 +1,15 @@
+import os
 import datetime
 import pandas
 import collections
+from dotenv import load_dotenv
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-def calculate_years_of_work(founding_date):
-    # today = datetime.date.today()
-    # formatted_today = int(today.strftime("%Y"))
-    # years_of_winery = formatted_today - founding_date
+load_dotenv()
 
+def calculate_years_of_work(founding_date):
     today = datetime.date.today()
     return int(today.strftime("%Y")) - founding_date
     
@@ -25,18 +25,19 @@ def decline_years(years_of_winery):
         return f'{years_of_winery} лет'
 
 def create_price():
+    user_file = os.getenv('WINE_PRICE', 'wine.xlsx')
     excel_data_wine = pandas.read_excel(
-        'wine.xlsx',
+        user_file,
         sheet_name='Лист1',
         usecols=['Категория', 'Название', 'Сорт', 'Цена', 'Картинка', 'Акция'],
         na_values=[], keep_default_na=False)
-    wine_price = excel_data_wine.to_dict(orient='records')
-    wine_price_with_category = collections.defaultdict(list)
-    for item in wine_price:
-        category = item['Категория']
-        wine_price_with_category[category].append(item)
-    sorted_wine_price = dict(sorted(wine_price_with_category.items()))
-    return sorted_wine_price
+    price = excel_data_wine.to_dict(orient='records')
+    price_with_category = collections.defaultdict(list)
+    for wine in price:
+        category = wine['Категория']
+        price_with_category[category].append(wine)
+    sorted_price = dict(sorted(price_with_category.items()))
+    return sorted_price
 
 def main():
     founding_date = 1920
@@ -47,11 +48,11 @@ def main():
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    template = env.get_template('template.html')
+    template = env.get_template(os.getenv('WINE_TEMPLATE', 'template.html'))
 
     rendered_page = template.render(
         years_of_work=decline_years(years_of_winery),
-        wine_price=create_price(),
+        wines_price=create_price(),
     )
 
     with open('index.html', 'w', encoding="utf8") as file:
