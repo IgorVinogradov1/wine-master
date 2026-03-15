@@ -6,9 +6,15 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 def calculate_years_of_work(founding_date):
+    # today = datetime.date.today()
+    # formatted_today = int(today.strftime("%Y"))
+    # years_of_winery = formatted_today - founding_date
+
     today = datetime.date.today()
-    formatted_today = int(today.strftime("%Y"))
-    years_of_winery = formatted_today - founding_date
+    return int(today.strftime("%Y")) - founding_date
+    
+
+def decline_years(years_of_winery):
     last_num = years_of_winery % 10
     prev_num = (years_of_winery // 10) % 10
     if prev_num != 1 and last_num == 1:
@@ -34,6 +40,8 @@ def create_price():
 
 def main():
     founding_date = 1920
+    years_of_winery = calculate_years_of_work(founding_date)
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
@@ -42,7 +50,7 @@ def main():
     template = env.get_template('template.html')
 
     rendered_page = template.render(
-        years_of_work=calculate_years_of_work(founding_date),
+        years_of_work=decline_years(years_of_winery),
         wine_price=create_price(),
     )
 
