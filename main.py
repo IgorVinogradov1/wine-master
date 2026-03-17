@@ -9,8 +9,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 def calculate_years_of_work(founding_date):
     today = datetime.date.today()
-    return int(today.strftime("%Y")) - founding_date
-    
+    return int(today.strftime("%Y")) - founding_date  
 
 def decline_years(years_of_winery):
     last_num = years_of_winery % 10
@@ -29,13 +28,13 @@ def create_price():
         sheet_name='Лист1',
         usecols=['Категория', 'Название', 'Сорт', 'Цена', 'Картинка', 'Акция'],
         na_values=[], keep_default_na=False)
-    price = excel_data_wine.to_dict(orient='records')
-    price_with_category = collections.defaultdict(list)
-    for wine in price:
+    wine_catalog = excel_data_wine.to_dict(orient='records')
+    prices_with_category = collections.defaultdict(list)
+    for wine in wine_catalog:
         category = wine['Категория']
-        price_with_category[category].append(wine)
-    sorted_price = dict(sorted(price_with_category.items()))
-    return sorted_price
+        prices_with_category[category].append(wine)
+    sorted_wines_prices = dict(sorted(prices_with_category.items()))
+    return sorted_wines_prices
 
 def main():
     load_dotenv()
@@ -51,7 +50,7 @@ def main():
 
     rendered_page = template.render(
         years_of_work=decline_years(years_of_winery),
-        wines_price=create_price(),
+        wines_prices=create_price(),
     )
 
     with open('index.html', 'w', encoding="utf8") as file:
