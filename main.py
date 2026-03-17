@@ -7,8 +7,6 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-load_dotenv()
-
 def calculate_years_of_work(founding_date):
     today = datetime.date.today()
     return int(today.strftime("%Y")) - founding_date
@@ -40,6 +38,7 @@ def create_price():
     return sorted_price
 
 def main():
+    load_dotenv()
     founding_date = 1920
     years_of_winery = calculate_years_of_work(founding_date)
 
